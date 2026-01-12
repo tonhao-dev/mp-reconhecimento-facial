@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import Header from "./components/Header";
 import LoadingSpinner from "./components/LoadingSpinner";
+import * as faceapi from "face-api.js";
 
 function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -12,15 +13,38 @@ function App() {
 
     const videoElement = videoRef.current;
 
-    console.log(videoElement);
-
     if (!videoElement) return;
 
     videoElement.srcObject = stream;
   }
 
+  async function initializeRecognitionModels() {
+    await Promise.all([
+      faceapi.loadTinyFaceDetectorModel("/models"),
+      faceapi.loadFaceLandmarkModel("/models"),
+      faceapi.loadFaceExpressionModel("/models"),
+    ]);
+
+    console.log("Modelos carregados!");
+  }
+
+  async function detectFace() {
+    const videoElement = videoRef.current;
+
+    if (!videoElement) return;
+
+    const detection = await faceapi.detectSingleFace(
+      videoElement,
+      new faceapi.TinyFaceDetectorOptions()
+    );
+
+    console.log(detection);
+  }
+
   useEffect(() => {
     displayWebcam();
+    initializeRecognitionModels();
+    detectFace();
   }, []);
 
   return (
