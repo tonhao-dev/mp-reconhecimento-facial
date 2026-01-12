@@ -37,10 +37,10 @@ function App() {
       return;
     }
 
-    const detection = await faceapi.detectSingleFace(
-      videoElement,
-      new faceapi.TinyFaceDetectorOptions()
-    );
+    const detection = await faceapi
+      .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions())
+      .withFaceLandmarks()
+      .withFaceExpressions();
 
     if (!detection) {
       setTimeout(displayDrawnOnFace, 1000);
@@ -53,10 +53,11 @@ function App() {
       true
     );
 
-    faceapi.draw.drawDetections(
-      canvasElement,
-      faceapi.resizeResults(detection, dimensions)
-    );
+    const resizedResults = faceapi.resizeResults(detection, dimensions);
+
+    faceapi.draw.drawDetections(canvasElement, resizedResults);
+    faceapi.draw.drawFaceLandmarks(canvasElement, resizedResults);
+    faceapi.draw.drawFaceExpressions(canvasElement, resizedResults);
 
     setTimeout(displayDrawnOnFace, 1000);
   }
