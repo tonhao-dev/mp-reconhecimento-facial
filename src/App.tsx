@@ -5,6 +5,7 @@ import * as faceapi from "face-api.js";
 
 function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   async function displayWebcam() {
     if (!navigator?.mediaDevices?.getUserMedia) return;
@@ -28,23 +29,41 @@ function App() {
     console.log("Modelos carregados!");
   }
 
-  async function detectFace() {
+  async function displayDrawnOnFace() {
     const videoElement = videoRef.current;
+    const canvasElement = canvasRef.current;
 
-    if (!videoElement) return;
+    if (!videoElement || !canvasElement) {
+      return;
+    }
 
     const detection = await faceapi.detectSingleFace(
       videoElement,
       new faceapi.TinyFaceDetectorOptions()
     );
 
-    console.log(detection);
+    if (!detection) {
+      setTimeout(displayDrawnOnFace, 1000);
+      return;
+    }
+
+    const dimensions = faceapi.matchDimensions(
+      canvasElement,
+      videoElement,
+      true
+    );
+
+    faceapi.draw.drawDetections(
+      canvasElement,
+      faceapi.resizeResults(detection, dimensions)
+    );
+
+    setTimeout(displayDrawnOnFace, 1000);
   }
 
   useEffect(() => {
     displayWebcam();
     initializeRecognitionModels();
-    detectFace();
   }, []);
 
   return (
@@ -55,12 +74,18 @@ function App() {
           <div className="relative flex items-center justify-center aspect-video w-full">
             {/* Substitua pela Webcam */}
             <div className="aspect-video rounded-lg bg-gray-300 w-full">
-              <video
-                ref={videoRef}
-                autoPlay
-                className="w-full"
-                style={{ transform: "scaleX(-1)" }}
-              ></video>
+              <div className="relative">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  className="w-full"
+                  onLoadedMetadata={displayDrawnOnFace}
+                ></video>
+                <canvas
+                  ref={canvasRef}
+                  className="absolute top-0 left-0 inset-0 w-full h-full"
+                ></canvas>
+              </div>
             </div>
             {/* Substitua pela Webcam */}
           </div>
