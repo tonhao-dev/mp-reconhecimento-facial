@@ -1,7 +1,28 @@
-import Header from './components/Header';
-import LoadingSpinner from './components/LoadingSpinner';
+import { useEffect, useRef } from "react";
+import Header from "./components/Header";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  async function displayWebcam() {
+    if (!navigator?.mediaDevices?.getUserMedia) return;
+
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+    const videoElement = videoRef.current;
+
+    console.log(videoElement);
+
+    if (!videoElement) return;
+
+    videoElement.srcObject = stream;
+  }
+
+  useEffect(() => {
+    displayWebcam();
+  }, []);
+
   return (
     <main className="min-h-screen flex flex-col lg:flex-row md:justify-between gap-14 xl:gap-40 p-10 items-center container mx-auto">
       <Header />
@@ -9,7 +30,14 @@ function App() {
         <div className="bg-white rounded-xl p-2">
           <div className="relative flex items-center justify-center aspect-video w-full">
             {/* Substitua pela Webcam */}
-            <div className="aspect-video rounded-lg bg-gray-300 w-full"></div>
+            <div className="aspect-video rounded-lg bg-gray-300 w-full">
+              <video
+                ref={videoRef}
+                autoPlay
+                className="w-full"
+                style={{ transform: "scaleX(-1)" }}
+              ></video>
+            </div>
             {/* Substitua pela Webcam */}
           </div>
         </div>
