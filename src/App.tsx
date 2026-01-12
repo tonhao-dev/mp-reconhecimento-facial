@@ -1,9 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "./components/Header";
 import LoadingSpinner from "./components/LoadingSpinner";
 import * as faceapi from "face-api.js";
+import { translateExpressionToEmoji } from "./lib/utils";
+import ResultMessage from "./components/ResultMessage";
 
 function App() {
+  const [expression, setExpression] = useState("");
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -46,6 +50,9 @@ function App() {
       setTimeout(displayDrawnOnFace, 1000);
       return;
     }
+
+    const mostProbablyExpression = detection?.expressions.asSortedArray()[0];
+    setExpression(mostProbablyExpression?.expression);
 
     const dimensions = faceapi.matchDimensions(
       canvasElement,
@@ -92,13 +99,14 @@ function App() {
           </div>
         </div>
         <div
-          className={`bg-white rounded-xl px-8 py-6 flex gap-6 lg:gap-20 items-center h-[200px] justify-center`}
+          className={`bg-white rounded-xl px-8 py-6 flex gap-6 lg:gap-20 items-center h-[200px] justify-between`}
         >
-          <p className="text-4xl text-center flex justify-center items-center text-yellow-300">
-            {/* Substitua pelo texto */}
-            <LoadingSpinner />
-            {/* Substitua pelo texto */}
-          </p>
+          <span className="lg:text-[100px] text-6xl">
+            {expression && translateExpressionToEmoji(expression)}
+          </span>
+          <h3 className="text-3xl text-right lg:text-4xl md:text-3xl text-neutral-500 font-secondary">
+            <ResultMessage expression={expression} />
+          </h3>
         </div>
       </section>
     </main>
