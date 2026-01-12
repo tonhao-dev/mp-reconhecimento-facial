@@ -5,6 +5,7 @@ import * as faceapi from "face-api.js";
 import { translateExpressionToEmoji } from "./lib/utils";
 import ResultMessage from "./components/ResultMessage";
 import RenderCondition from "./components/RenderCondition";
+import useWebcam from "./hooks/useWebcam";
 
 function App() {
   const [expression, setExpression] = useState("");
@@ -13,17 +14,7 @@ function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  async function displayWebcam() {
-    if (!navigator?.mediaDevices?.getUserMedia) return;
-
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-    const videoElement = videoRef.current;
-
-    if (!videoElement) return;
-
-    videoElement.srcObject = stream;
-  }
+  useWebcam(videoRef);
 
   async function initializeRecognitionModels() {
     await Promise.all([
@@ -74,7 +65,6 @@ function App() {
   }
 
   useEffect(() => {
-    displayWebcam();
     initializeRecognitionModels();
   }, []);
 
