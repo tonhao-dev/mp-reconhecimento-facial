@@ -1,11 +1,6 @@
 import { useRef, useState } from "react";
 import Header from "./components/Header";
-import LoadingSpinner from "./components/LoadingSpinner";
 import * as faceapi from "face-api.js";
-import { translateExpressionToEmoji } from "./lib/utils";
-import ResultMessage from "./components/ResultMessage";
-import RenderCondition from "./components/RenderCondition";
-import useWebcam from "./hooks/useWebcam";
 import { useLoadModels } from "./hooks/useLoadModels";
 import WebcamCard from "./components/WecamCard";
 import ResultCard from "./components/ResultCard";
@@ -17,7 +12,6 @@ function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useWebcam(videoRef);
   useLoadModels();
 
   async function displayDrawnOnFace() {

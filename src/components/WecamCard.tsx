@@ -1,3 +1,5 @@
+import useWebcam from "../hooks/useWebcam";
+
 export interface IWebcamCardProps {
   videoRef: React.RefObject<HTMLVideoElement>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -10,6 +12,8 @@ export default function WebcamCard({
   onLoadedMetadata,
   ...rest
 }: IWebcamCardProps) {
+  useWebcam(videoRef);
+
   return (
     <div
       {...rest}
