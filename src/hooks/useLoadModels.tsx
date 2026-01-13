@@ -11,6 +11,6 @@ export function useLoadModels() {
   }
 
   useEffect(() => {
-    initializeRecognitionModels;
+    initializeRecognitionModels();
   }, []);
 }
