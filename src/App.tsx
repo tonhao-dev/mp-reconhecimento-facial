@@ -1,9 +1,11 @@
 import { useRef, useState } from "react";
 import Header from "./components/Header";
-import * as faceapi from "face-api.js";
 import { useLoadModels } from "./hooks/useLoadModels";
 import WebcamCard from "./components/WecamCard";
 import ResultCard from "./components/ResultCard";
+import useFaceDetection, {
+  ExpressionWithProbability,
+} from "./hooks/useFaceDetection";
 
 function App() {
   const [expression, setExpression] = useState("");
@@ -13,43 +15,20 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useLoadModels();
+  const { drawnOnFaceDetection } = useFaceDetection({
+    canvasRef: canvasRef,
+    videoRef: videoRef,
+    onDetectExpression,
+    onFinishDraw,
+  });
 
-  async function displayDrawnOnFace() {
-    const videoElement = videoRef.current;
-    const canvasElement = canvasRef.current;
+  function onDetectExpression(expressions: ExpressionWithProbability[]) {
+    const { expression } = expressions[0];
+    setExpression(expression);
+  }
 
-    if (!videoElement || !canvasElement) {
-      return;
-    }
-
-    const detection = await faceapi
-      .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions())
-      .withFaceLandmarks()
-      .withFaceExpressions();
-
-    if (!detection) {
-      setTimeout(displayDrawnOnFace, 1000);
-      return;
-    }
-
-    const mostProbablyExpression = detection?.expressions.asSortedArray()[0];
-    setExpression(mostProbablyExpression?.expression);
-
-    const dimensions = faceapi.matchDimensions(
-      canvasElement,
-      videoElement,
-      true
-    );
-
-    const resizedResults = faceapi.resizeResults(detection, dimensions);
-
-    faceapi.draw.drawDetections(canvasElement, resizedResults);
-    faceapi.draw.drawFaceLandmarks(canvasElement, resizedResults);
-    faceapi.draw.drawFaceExpressions(canvasElement, resizedResults);
-
+  function onFinishDraw() {
     setIsLoading(false);
-
-    setTimeout(displayDrawnOnFace, 1000);
   }
 
   return (
@@ -60,7 +39,7 @@ function App() {
           <WebcamCard
             videoRef={videoRef}
             canvasRef={canvasRef}
-            onLoadedMetadata={displayDrawnOnFace}
+            onLoadedMetadata={drawnOnFaceDetection}
           />
         </div>
         <div
