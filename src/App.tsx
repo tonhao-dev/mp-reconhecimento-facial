@@ -8,6 +8,7 @@ import RenderCondition from "./components/RenderCondition";
 import useWebcam from "./hooks/useWebcam";
 import { useLoadModels } from "./hooks/useLoadModels";
 import WebcamCard from "./components/WecamCard";
+import ResultCard from "./components/ResultCard";
 
 function App() {
   const [expression, setExpression] = useState("");
@@ -71,19 +72,7 @@ function App() {
         <div
           className={`bg-white rounded-xl px-8 py-6 flex gap-6 lg:gap-20 items-center h-[200px] justify-between`}
         >
-          <RenderCondition condition={isLoading}>
-            <div className="text-amber-300 text-6xl flex items-center justify-center w-full">
-              <LoadingSpinner />
-            </div>
-          </RenderCondition>
-          <RenderCondition condition={!isLoading}>
-            <span className="lg:text-[100px] text-6xl">
-              {expression && translateExpressionToEmoji(expression)}
-            </span>
-            <h3 className="text-3xl text-right lg:text-4xl md:text-3xl text-neutral-500 font-secondary">
-              <ResultMessage expression={expression} />
-            </h3>
-          </RenderCondition>
+          <ResultCard expression={expression} loading={isLoading} />
         </div>
       </section>
     </main>
