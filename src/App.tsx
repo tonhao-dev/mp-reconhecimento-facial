@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Header from "./components/Header";
 import LoadingSpinner from "./components/LoadingSpinner";
 import * as faceapi from "face-api.js";
@@ -6,6 +6,8 @@ import { translateExpressionToEmoji } from "./lib/utils";
 import ResultMessage from "./components/ResultMessage";
 import RenderCondition from "./components/RenderCondition";
 import useWebcam from "./hooks/useWebcam";
+import { useLoadModels } from "./hooks/useLoadModels";
+import WebcamCard from "./components/WecamCard";
 
 function App() {
   const [expression, setExpression] = useState("");
@@ -15,16 +17,7 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useWebcam(videoRef);
-
-  async function initializeRecognitionModels() {
-    await Promise.all([
-      faceapi.loadTinyFaceDetectorModel("/models"),
-      faceapi.loadFaceLandmarkModel("/models"),
-      faceapi.loadFaceExpressionModel("/models"),
-    ]);
-
-    console.log("Modelos carregados!");
-  }
+  useLoadModels();
 
   async function displayDrawnOnFace() {
     const videoElement = videoRef.current;
@@ -64,33 +57,16 @@ function App() {
     setTimeout(displayDrawnOnFace, 1000);
   }
 
-  useEffect(() => {
-    initializeRecognitionModels();
-  }, []);
-
   return (
     <main className="min-h-screen flex flex-col lg:flex-row md:justify-between gap-14 xl:gap-40 p-10 items-center container mx-auto">
       <Header />
       <section className="flex flex-col gap-6 flex-1 w-full">
         <div className="bg-white rounded-xl p-2">
-          <div className="relative flex items-center justify-center aspect-video w-full">
-            {/* Substitua pela Webcam */}
-            <div className="aspect-video rounded-lg bg-gray-300 w-full">
-              <div className="relative">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  className="w-full"
-                  onLoadedMetadata={displayDrawnOnFace}
-                ></video>
-                <canvas
-                  ref={canvasRef}
-                  className="absolute top-0 left-0 inset-0 w-full h-full"
-                ></canvas>
-              </div>
-            </div>
-            {/* Substitua pela Webcam */}
-          </div>
+          <WebcamCard
+            videoRef={videoRef}
+            canvasRef={canvasRef}
+            onLoadedMetadata={displayDrawnOnFace}
+          />
         </div>
         <div
           className={`bg-white rounded-xl px-8 py-6 flex gap-6 lg:gap-20 items-center h-[200px] justify-between`}
